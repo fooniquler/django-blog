@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Make post
+{% endblock %}
+
+{% block content %}
+
+    {% if user.is_authenticated %}
+        <div class="form-group">
+            <form method="POST">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button class="btn btn-outline-primary">Publish</button>
+            </form>
+        </div>
+
+    {% else %}
+
+        <script type="text/javascript">
+            sessionStorage.setItem('toast', 1);
+
+            window.location.href = '{% url 'login' %}';
+
+        </script>
+    {% endif %}
+
+{% endblock %}
+

@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Login
+{% endblock %}
+
+{% block content %}
+    <div id="toastContainer" class="toast-container position-fixed bottom-0 end-0 p-3">
+
+    </div>
+
+    <script type="text/javascript">
+        const storedToast = sessionStorage.getItem('toast');
+        var toastContainer = document.getElementById('toastContainer');
+
+        if(storedToast == '1'){
+            toastContainer.innerHTML = `
+          <div id="liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header bg-warning text-dark">
+              <strong class="me-auto">Error!</strong>
+              <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div class="toast-body">
+              You must be logged in to create posts
+            </div>
+          </div>`;
+        }
+
+        elem = document.getElementById('liveToast');
+        const toast = bootstrap.Toast.getOrCreateInstance(elem);
+        toast.show();
+
+        sessionStorage.removeItem('toast');
+    </script>
+
+    <div class="form-group">
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-outline-primary">Login</button>
+        </form>
+        <form method="POST" action="{% url 'register' %}" class="d-flex mt-3 align-items-center">
+            {% csrf_token %}
+            <label>New to this site?</label>
+            <button type="submit" class="btn btn-link">Register</button>
+        </form>
+    </div>
+{% endblock %}

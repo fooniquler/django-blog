@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Delete post
+{% endblock %}
+
+{% block content %}
+    <h3>Are you sure?</h3>
+    </br>
+    <div class="form-group d-flex gap-5">
+        <form action="{% url 'post_view' post.pk %}">
+            {% csrf_token %}
+            <button class="btn btn-outline-primary">Back</button>
+        </form>
+        <form method="POST">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button class="btn btn-outline-danger">Delete</button>
+        </form>
+    </div>
+
+{% endblock %}
+
+!!!!!!!!!!!DELETE PAGE FOR AUTH AND AUTHOR!!!!!!!!!

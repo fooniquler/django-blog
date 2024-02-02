@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+
+{% block title %}
+    Post {{ post.id }} {{ post.title|truncatewords:1 }}
+{% endblock %}
+
+{% block content %}
+
+<div class="d-flex flex-row align-items-center gap-3">
+    <h4>{{ post.author.first_name }} {{ post.author.last_name }} ({{ post.author.username }})</h4>
+    <span style="color: #909090;">{{ post.get_date }}</span>
+
+    {% if user.pk == post.author.id %}
+        <form action="{% url 'edit_post' post.id %}">
+            <button type="submit" class="btn btn-outline-primary">Edit post</button>
+        </form>
+        <form action="{% url 'delete_post' post.id %}">
+            <button type="submit" class="btn btn-outline-danger">Delete post</button>
+        </form>
+
+    {% endif %}
+</div>
+<hr>
+<div class="container text-center">
+  <div class="row align-items-start">
+    <div class="col-8">
+        <h1>{{ post.title }}</h1>
+        {{ post.content }}
+    </div>
+    <div class="col-4">
+      <h2>Popular now</h2>
+      sdf
+      sdf
+    </div>
+  </div>
+</div>
+<form action="{% url 'home' %}" class="mt-5">
+    {% csrf_token %}
+    <button class="btn btn-outline-primary ">Back</button>
+</form>
+
+{% endblock %}
