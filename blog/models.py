@@ -11,6 +11,7 @@ class Post(models.Model):
     title = models.CharField(max_length=255)
     content = models.TextField()
     post_date = models.DateTimeField(auto_now_add=True)
+    views_count = models.IntegerField(default=0)
 
     def get_date(self):
         return humanize.naturaltime(self.post_date)

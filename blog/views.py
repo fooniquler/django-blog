@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.db import transaction
 from .models import Post
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import PostForm
@@ -13,6 +13,19 @@ class HomeView(ListView):
 class PostView(DetailView):
     model = Post
     template_name = 'post_view.html'
+
+    def get_object(self, queryset=None):
+        with transaction.atomic():
+            post = super().get_object(queryset)
+            post.views_count += 1
+            post.save()
+            return post
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        popular_posts = Post.objects.order_by('-views_count')[:5]
+        context['popular_posts'] = popular_posts
+        return context
 
 
 class MakePostView(CreateView):
