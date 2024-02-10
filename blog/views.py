@@ -3,11 +3,16 @@ from .models import Post
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from .forms import PostForm
 from django.urls import reverse
+from .tasks import moderate_post
 
 
 class HomeView(ListView):
     model = Post
     template_name = 'home.html'
+
+    def get_queryset(self):
+        queryset = Post.objects.filter(status='published')
+        return queryset
 
 
 class PostView(DetailView):
@@ -36,17 +41,26 @@ class MakePostView(CreateView):
 
     def form_valid(self, form):
         form.instance.author = self.request.user
-        return super().form_valid(form)
+        response = super().form_valid(form)
+        post_id = form.instance.id
+        moderate_post.delay(post_id)
+        return response
 
 
 class EditPostView(UpdateView):
     model = Post
     form_class = PostForm
     template_name = 'edit_post.html'
+    success_url = '/'
 
-    def get_success_url(self):
-        post_id = self.kwargs['pk']
-        return reverse('post_view', kwargs={'pk': post_id})
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        post_id = form.instance.id
+        post = Post.objects.get(id=post_id)
+        post.status = 'moderated'
+        post.save()
+        moderate_post.delay(post_id)
+        return response
 
 
 class DeletePostView(DeleteView):

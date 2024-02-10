@@ -11,15 +11,39 @@
 
         <a href="{% url 'post_view' post.id %}" class="list-group-item list-group-item-action" aria-current="true">
         <div class="d-flex w-100 justify-content-between">
-          <h5 class="mb-1">{{ post.title }}</h5>
+            {% if post.title|length >= 100 %}
+                <h5 class="mb-1">{{ post.title|slice:100 }}...</h5>
+            {% else %}
+            <h5 class="mb-1">{{ post.title }}</h5>
+            {% endif %}
+
           <small>{{ post.get_date }}</small>
         </div>
         <p class="mb-1">{{ post.content|slice:100 }}...</p>
             <small>Author: {{ post.author.first_name }} {{ post.author.last_name }} ({{ post.author.username }})</small>
         </a>
-
-
     {% endfor %}
     </ul>
+
+        <script>
+            const storedToast = sessionStorage.getItem('toast');
+            if(storedToast == 'moderation_notification'){
+                const elem = document.getElementById('liveToast');
+
+                const header_color = document.getElementsByClassName('toast-header')[0];
+                header_color.classList = ['toast-header text-dark bg-warning'];
+
+                const toast_header = document.getElementById('toast-header');
+                toast_header.innerHTML = 'Attention';
+
+                const toast_body = document.getElementById('toast-body');
+                toast_body.innerHTML = 'Your post will be moderated before publication'
+
+                const toast = bootstrap.Toast.getOrCreateInstance(elem);
+                toast.show();
+
+            }
+            sessionStorage.removeItem('toast');
+        </script>
 
 {% endblock %}

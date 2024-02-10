@@ -19,7 +19,11 @@
                         <button class="btn btn-outline-primary">Submit changes</button>
                     </div>
                 </form>
+
             </div>
+<script>
+            sessionStorage.setItem('toast', 'moderation_notification');
+        </script>
         {% else %}
 
             <form action="{% url 'home' %}" class="mt-5 text-center" >
