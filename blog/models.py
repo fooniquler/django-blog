@@ -15,6 +15,8 @@ class Post(models.Model):
     post_date = models.DateTimeField(auto_now_add=True)
     views_count = models.IntegerField(default=0)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='moderation')
+    likes = models.ManyToManyField(User, related_name='liked_posts', blank=True)
+    dislikes = models.ManyToManyField(User, related_name='disliked_posts', blank=True)
 
     def get_date(self):
         return humanize.naturaltime(self.post_date)
