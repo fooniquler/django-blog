@@ -18,3 +18,10 @@ class NotificationConsumer(AsyncWebsocketConsumer):
             'type': 'post_notification',
             'message': message
         }))
+
+    async def comment_published(self, event):
+        message = event['message']
+        await self.send(text_data=json.dumps({
+            'type': 'comment_notification',
+            'message': message
+        }))

@@ -4,9 +4,9 @@ from django.views.decorators.http import require_POST
 
 from .models import Post
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
-from .forms import PostForm
-from django.urls import reverse
-from .tasks import moderate_post
+from .forms import PostForm, CommentForm
+from django.shortcuts import redirect
+from .tasks import moderate_post, moderate_comment
 
 
 class HomeView(ListView):
@@ -22,12 +22,23 @@ class PostView(DetailView):
     model = Post
     template_name = 'post_view.html'
 
-    def get_object(self, queryset=None):
+    def get(self, request, *args, **kwargs):
         with transaction.atomic():
-            post = super().get_object(queryset)
+            post = self.get_object()
             post.views_count += 1
             post.save()
-            return post
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        form = CommentForm(request.POST)
+        if form.is_valid():
+            comment = form.save(commit=False)
+            comment.post = self.get_object()
+            comment.author = self.request.user
+            comment.save()
+            moderate_comment.delay(comment.id)
+            return redirect('post_view', pk=self.get_object().pk)
+        return self.get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -35,6 +46,7 @@ class PostView(DetailView):
         popular_posts = Post.objects.order_by('-views_count')[:5]
         likes_count = self.get_object().likes.count()
         dislikes_count = self.get_object().dislikes.count()
+        comments = self.get_object().comments.filter(status='published')
 
         if self.request.user.is_authenticated:
             liked_by_user = self.get_object().likes.filter(id=self.request.user.id).exists()
@@ -47,6 +59,8 @@ class PostView(DetailView):
         context['likes_count'] = likes_count
         context['dislikes_count'] = dislikes_count
         context['popular_posts'] = popular_posts
+        context['comments'] = comments
+        context['form'] = CommentForm()
         return context
 
 

@@ -138,4 +138,61 @@
         });
 </script>
 
+<div class="comment-section mt-3 mb-3">
+    <h1>Comments</h1>
+    <ul class="list-group">
+        {% for comment in comments %}
+            <li class="list-group-item">
+                <div class="d-flex justify-content-between">
+                    <h5>{{ comment.author }}</h5>
+                    <p>{{ comment.get_date }}</p>
+                </div>
+                {{ comment.content }}
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% if user.is_authenticated %}
+<div class="form-group d-flex justify-content-center align-items-center flex-column">
+    <h2>Leave a comment</h2>
+                <form method="POST" id="form_comment">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <div class="d-flex justify-content-center mb-3">
+                        <button class="btn btn-outline-primary">Comment</button>
+                    </div>
+                    <script>
+                        const form = document.getElementById("form_comment");
+                        form.addEventListener('submit', function(event){
+                            sessionStorage.setItem('toast', 'moderation_notification');
+                        });
+                    </script>
+                </form>
+
+
+            </div>
+
+{% endif %}
+
+<script>
+            const storedToast = sessionStorage.getItem('toast');
+            if(storedToast == 'moderation_notification'){
+                const elem = document.getElementById('liveToast');
+
+                const header_color = document.getElementsByClassName('toast-header')[0];
+                header_color.classList = ['toast-header text-dark bg-warning'];
+
+                const toast_header = document.getElementById('toast-header');
+                toast_header.innerHTML = 'Attention';
+
+                const toast_body = document.getElementById('toast-body');
+                toast_body.innerHTML = 'Your comment will be moderated before publication'
+
+                const toast = bootstrap.Toast.getOrCreateInstance(elem);
+                toast.show();
+
+            }
+            sessionStorage.removeItem('toast');
+        </script>
+
 {% endblock %}
